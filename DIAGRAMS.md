@@ -1,108 +1,56 @@
-# Infinity Gym System Diagrams
-
-## 1. Use Case Diagram
-This diagram outlines the interactions between the Visitor and the Admin.
-
-```mermaid
-usecaseDiagram
-    actor "Website Visitor" as Visitor
-    actor "Gym Admin" as Admin
-
-    package "Infinity Gym Website" {
-        usecase "View Home & Facilities" as UC1
-        usecase "View Trainers" as UC2
-        usecase "Submit Contact Form" as UC3
-        usecase "Subscribe to Plan" as UC4
-        usecase "Admin Login" as UC5
-    }
-
-    package "Admin Dashboard" {
-        usecase "View Subscriber List" as UC6
-        usecase "Add New Subscriber" as UC7
-        usecase "Edit Subscriber" as UC8
-        usecase "Delete Subscriber" as UC9
-        usecase "Search Subscribers" as UC10
-        usecase "Export Data to CSV" as UC11
-        usecase "View/Delete Messages" as UC12
-    }
-
-    Visitor --> UC1
-    Visitor --> UC2
-    Visitor --> UC3
-    Visitor --> UC4
-
-    Admin --> UC5
-    UC5 --> UC6
-    Admin --> UC7
-    Admin --> UC8
-    Admin --> UC9
-    Admin --> UC10
-    Admin --> UC11
-    Admin --> UC12
-sequenceDiagram
-    autonumber
-    actor User as Visitor
-    participant UI as Web Interface (index.html)
-    participant JS as JavaScript Logic
-    participant DB as Firebase Firestore
-
-    User->>UI: Clicks "Subscribe" on Plan
-    UI->>UI: Scrolls to Subscription Form
-    UI-->>User: Displays Form (Plan Pre-selected)
-    User->>UI: Fills Name, Email, Phone, Duration
-    User->>UI: Clicks "Confirm & Pay"
-    UI->>JS: Trigger submit event
-    JS->>DB: db.collection('subscriptionRequests').add()
-    
-    alt Success
-        DB-->>JS: Return Document ID
-        JS->>UI: Show Success Message
-        UI-->>User: "Subscription request sent!"
-    else Error
-        DB-->>JS: Return Error
-        JS->>UI: Show Error Message
+graph TB
+    subgraph System["Infinity Gym Website System"]
+        UC1[View Facility Information]
+        UC2[View Trainer Profiles]
+        UC3[Browse Membership Plans]
+        UC4[Subscribe to Membership]
+        UC5[Submit Contact Message]
+        UC6[Search for Information]
+        UC7[Admin Login]
+        UC8[Manage Subscribers]
+        UC9[View Contact Messages]
+        UC10[Export Subscriber Data]
+        UC11[Add New Subscriber]
+        UC12[Edit Subscriber Information]
+        UC13[Delete Subscriber]
+        UC14[View Operating Hours]
+        UC15[View Location]
     end
-sequenceDiagram
-    autonumber
-    actor Admin
-    participant Dash as Admin Dashboard
-    participant Auth as Auth Logic
-    participant DB as Firebase Firestore
-
-    Admin->>Dash: Enter Credentials
-    Dash->>Auth: Validate (admin/password)
     
-    alt Valid Credentials
-        Auth-->>Dash: Access Granted
-        Dash->>DB: db.collection('subscribers').get()
-        DB-->>Dash: Return Subscriber List
-        Dash-->>Admin: Display Dashboard Table
-    else Invalid
-        Auth-->>Dash: Show Error Message
-    end
-
-    Admin->>Dash: Fill "Add New Subscriber" Form
-    Admin->>Dash: Click "Add Subscriber"
-    Dash->>DB: db.collection('subscribers').add()
-    DB-->>Dash: Return Success
-    Dash->>Dash: Update Table UI
-    Dash-->>Admin: Show "Subscriber added successfully"
-flowchart TD
-    A([Start]) --> B[User enters Contact Section];
-    B --> C[User fills Name, Email, Subject, Message];
-    C --> D[User clicks Send];
-    D --> E{Form Valid?};
+    Visitor[👤 Visitor/Member]
+    Admin[👨‍💼 Admin]
+    Firebase[(Firebase Database)]
+    EmailJS[📧 EmailJS Service]
     
-    E -- No --> F[Browser shows validation error];
-    F --> C;
+    Visitor -->|browses| UC1
+    Visitor -->|views| UC2
+    Visitor -->|explores| UC3
+    Visitor -->|submits| UC4
+    Visitor -->|sends| UC5
+    Visitor -->|uses| UC6
+    Visitor -->|checks| UC14
+    Visitor -->|views| UC15
     
-    E -- Yes --> G[JavaScript captures Data];
-    G --> H[Save to Firebase 'contactMessages'];
+    Admin -->|authenticates| UC7
+    Admin -->|performs| UC8
+    Admin -->|reviews| UC9
+    Admin -->|generates| UC10
+    Admin -->|creates| UC11
+    Admin -->|modifies| UC12
+    Admin -->|removes| UC13
     
-    H --> I{Save Successful?};
-    I -- Yes --> J[Display Success Message];
-    I -- No --> K[Display Error Message];
+    UC4 -.->|stores data| Firebase
+    UC5 -.->|stores data| Firebase
+    UC8 -.->|reads/writes| Firebase
+    UC9 -.->|reads| Firebase
+    UC11 -.->|writes| Firebase
+    UC12 -.->|updates| Firebase
+    UC13 -.->|deletes| Firebase
     
-    J --> L[Clear Form];
-    L --> M([End]);
-    K --> M;
+    UC5 -.->|sends email| EmailJS
+    
+    style System fill:#120602,stroke:#fda312,stroke-width:3px,color:#fff
+    style Visitor fill:#3b82f6,stroke:#1e40af,color:#fff
+    style Admin fill:#bc3b10,stroke:#7c2d0a,color:#fff
+    style Firebase fill:#fda312,stroke:#bc3b10,color:#000
+    style EmailJS fill:#22c55e,stroke:#16a34a,color:#000
